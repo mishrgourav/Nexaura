@@ -670,7 +670,25 @@ export function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0F172A] flex flex-col font-sans text-slate-800 dark:text-slate-100 selection:bg-teal-500 selection:text-white transition-colors duration-150">
+    <div className="min-h-screen bg-[#FAF7F0] dark:bg-[#0B1120] relative flex flex-col font-sans text-slate-800 dark:text-slate-100 selection:bg-amber-600 selection:text-white transition-colors duration-150">
+      {/* Full-Page Seamless Watercolor Stationery Background Layer (Saffron/Green waves watermark + faint sepia monument skyline) */}
+      <div 
+        className="fixed inset-0 pointer-events-none z-0 bg-[#FAF7F0] dark:bg-[#0B1120] bg-no-repeat bg-right-top bg-cover opacity-95 dark:opacity-20 transition-opacity"
+        style={{ backgroundImage: "url('/nexaura-page-bg.png')" }}
+        aria-hidden="true"
+      />
+      {/* Subtle seamless handmade paper micro-grain texture tile */}
+      <div 
+        className="fixed inset-0 pointer-events-none z-0 opacity-40 dark:opacity-10"
+        style={{ 
+          backgroundImage: "url('/paper-grain-seamless.png')",
+          backgroundRepeat: 'repeat',
+          backgroundSize: '400px 400px',
+        }}
+        aria-hidden="true"
+      />
+
+      <div className="relative z-10 flex flex-col min-h-screen flex-1">
       {/* Toast Alert Notification (Slide in from top, 3s auto-dismiss) */}
       {toastMessage && (
         <div className="fixed top-5 right-5 z-50 animate-in fade-in slide-in-from-top-4 duration-200 ease-out max-w-md">
@@ -964,6 +982,7 @@ export function App() {
           fetchAllData();
         }}
       />
+      </div>
     </div>
   );
 }

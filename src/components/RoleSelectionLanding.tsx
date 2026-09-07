@@ -138,7 +138,7 @@ export const RoleSelectionLanding: React.FC<RoleSelectionLandingProps> = ({
   ];
 
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-[#F8FAFC] dark:bg-[#0F172A] text-slate-800 dark:text-slate-100 flex flex-col justify-center py-10 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
+    <div className="min-h-[calc(100vh-80px)] bg-transparent text-slate-800 dark:text-slate-100 flex flex-col justify-center py-10 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
       <div className="max-w-6xl mx-auto w-full space-y-10">
         {/* Welcome Header */}
         <div className="text-center space-y-3 max-w-3xl mx-auto">

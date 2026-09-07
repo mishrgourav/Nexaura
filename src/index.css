@@ -6,8 +6,16 @@
   color-scheme: light;
 }
 
+body {
+  background-color: #FAF7F0;
+}
+
 :root.dark {
   color-scheme: dark;
+}
+
+:root.dark body {
+  background-color: #0B1120;
 }
 
 /* Base transitions for seamless light/dark mode switching */

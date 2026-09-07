@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2500 500" width="2500" height="500">
+  <defs>
+    <!-- Paper texture filter -->
+    <filter id="subtle-grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" result="noise"/>
+      <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.05 0" in="noise" result="coloredNoise"/>
+      <feBlend mode="multiply" in="SourceGraphic" in2="coloredNoise"/>
+    </filter>
+
+    <!-- Gradients for Tricolor Ribbons with watercolor softness -->
+    <linearGradient id="saffron-flow" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#EA580C" stop-opacity="0" />
+      <stop offset="10%" stop-color="#EA580C" stop-opacity="0.82" />
+      <stop offset="35%" stop-color="#F97316" stop-opacity="0.88" />
+      <stop offset="70%" stop-color="#FB923C" stop-opacity="0.85" />
+      <stop offset="90%" stop-color="#FDBA74" stop-opacity="0.75" />
+      <stop offset="100%" stop-color="#FED7AA" stop-opacity="0.45" />
+    </linearGradient>
+
+    <linearGradient id="saffron-flow-layer2" x1="0%" y1="90%" x2="100%" y2="10%">
+      <stop offset="0%" stop-color="#C2410C" stop-opacity="0" />
+      <stop offset="20%" stop-color="#F97316" stop-opacity="0.38" />
+      <stop offset="60%" stop-color="#EA580C" stop-opacity="0.32" />
+      <stop offset="100%" stop-color="#FB923C" stop-opacity="0.08" />
+    </linearGradient>
+
+    <linearGradient id="green-flow" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#15803D" stop-opacity="0" />
+      <stop offset="12%" stop-color="#16A34A" stop-opacity="0.82" />
+      <stop offset="45%" stop-color="#22C55E" stop-opacity="0.86" />
+      <stop offset="75%" stop-color="#4ADE80" stop-opacity="0.76" />
+      <stop offset="92%" stop-color="#86EFAC" stop-opacity="0.58" />
+      <stop offset="100%" stop-color="#BBF7D0" stop-opacity="0.25" />
+    </linearGradient>
+
+    <linearGradient id="green-flow-layer2" x1="0%" y1="90%" x2="100%" y2="10%">
+      <stop offset="0%" stop-color="#166534" stop-opacity="0" />
+      <stop offset="25%" stop-color="#15803D" stop-opacity="0.35" />
+      <stop offset="70%" stop-color="#22C55E" stop-opacity="0.28" />
+      <stop offset="100%" stop-color="#86EFAC" stop-opacity="0.08" />
+    </linearGradient>
+
+    <linearGradient id="white-sheen" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0" />
+      <stop offset="20%" stop-color="#FFFFFF" stop-opacity="0.6" />
+      <stop offset="50%" stop-color="#FFFFF8" stop-opacity="0.7" />
+      <stop offset="80%" stop-color="#FFFFFF" stop-opacity="0.5" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.2" />
+    </linearGradient>
+
+    <!-- Warm parchment background gradient -->
+    <linearGradient id="bg-parchment" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDFBF7" />
+      <stop offset="40%" stop-color="#FAF6EE" />
+      <stop offset="75%" stop-color="#F6EFE6" />
+      <stop offset="100%" stop-color="#F2E9DE" />
+    </linearGradient>
+
+    <!-- Radial subtle glow -->
+    <radialGradient id="warm-glow" cx="80%" cy="80%" r="65%">
+      <stop offset="0%" stop-color="#FDE8CD" stop-opacity="0.45" />
+      <stop offset="50%" stop-color="#F8EAD6" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="#F8EAD6" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Sepia silhouette gradient for landmarks -->
+    <linearGradient id="monument-sepia-near" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#C2A888" stop-opacity="0.65" />
+      <stop offset="50%" stop-color="#BA9D7B" stop-opacity="0.72" />
+      <stop offset="100%" stop-color="#AA8C69" stop-opacity="0.80" />
+    </linearGradient>
+
+    <linearGradient id="monument-sepia-mid" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#CBB59B" stop-opacity="0.45" />
+      <stop offset="60%" stop-color="#C4AB8F" stop-opacity="0.52" />
+      <stop offset="100%" stop-color="#B89C7E" stop-opacity="0.6" />
+    </linearGradient>
+
+    <linearGradient id="monument-sepia-far" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#D9C7AF" stop-opacity="0.28" />
+      <stop offset="70%" stop-color="#D2BEA3" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#C5B095" stop-opacity="0.4" />
+    </linearGradient>
+
+    <!-- Ground mist fade -->
+    <linearGradient id="ground-mist" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F6EFE6" stop-opacity="0" />
+      <stop offset="60%" stop-color="#F6EFE6" stop-opacity="0.45" />
+      <stop offset="100%" stop-color="#F2E9DE" stop-opacity="0.85" />
+    </linearGradient>
+  </defs>
+
+  <!-- Base background with warm watercolor paper texture -->
+  <rect width="2500" height="500" fill="url(#bg-parchment)" />
+  <rect width="2500" height="500" fill="url(#warm-glow)" />
+
+  <!-- Subtle organic watercolor wash spots in background -->
+  <g opacity="0.3" filter="url(#subtle-grain)">
+    <circle cx="2100" cy="380" r="420" fill="#E8D7C2" opacity="0.4" />
+    <circle cx="1600" cy="420" r="340" fill="#EEDFCB" opacity="0.3" />
+    <circle cx="1100" cy="470" r="260" fill="#F4EADB" opacity="0.25" />
+  </g>
+
+  <!-- ARCHITECTURAL LANDMARKS SILHOUETTES (Bottom-Right, Faint Sepia) -->
+  <g id="landmarks">
+    <!-- Horizon baseline -->
+    <rect x="1300" y="420" width="1200" height="8" fill="url(#monument-sepia-near)" opacity="0.7" rx="2" />
+    <rect x="1250" y="425" width="1250" height="75" fill="url(#monument-sepia-near)" opacity="0.45" />
+
+    <!-- DISTANT SKYLINE: Temples, domes & minarets -->
+    <g id="distant-skyline" fill="url(#monument-sepia-far)">
+      <!-- Small pavilion 1 -->
+      <path d="M 1360 420 L 1360 385 Q 1370 365 1380 385 L 1380 420 Z" />
+      <rect x="1368" y="358" width="4" height="10" />
+      <circle cx="1370" cy="356" r="3" />
+
+      <!-- Stepped temple spires / Shikhara -->
+      <path d="M 1395 420 L 1400 370 L 1405 340 L 1410 320 Q 1415 295 1420 320 L 1425 340 L 1430 370 L 1435 420 Z" />
+      <line x1="1415" y1="285" x2="1415" y2="295" stroke="#D2BEA3" stroke-width="2" />
+      <circle cx="1415" cy="283" r="2.5" />
+
+      <!-- Cluster of domes (Humayun style back) -->
+      <path d="M 1445 420 L 1445 375 C 1445 345, 1485 345, 1485 375 L 1485 420 Z" />
+      <rect x="1463" y="338" width="4" height="10" />
+      <circle cx="1465" cy="336" r="3" />
+      
+      <!-- Small side minaret -->
+      <rect x="1495" y="330" width="8" height="90" />
+      <path d="M 1493 330 Q 1499 315 1505 330 Z" />
+      <line x1="1499" y1="310" x2="1499" y2="315" stroke="#D2BEA3" stroke-width="1.5" />
+
+      <!-- Distant colonnade / arches -->
+      <path d="M 1515 420 L 1515 365 L 1585 365 L 1585 420 Z" />
+      <path d="M 1525 420 L 1525 380 Q 1535 370 1545 380 L 1545 420 Z" fill="#FAF6EE" opacity="0.6" />
+      <path d="M 1555 420 L 1555 380 Q 1565 370 1575 380 L 1575 420 Z" fill="#FAF6EE" opacity="0.6" />
+      <!-- Central dome on colonnade -->
+      <path d="M 1530 365 C 1530 325, 1570 325, 1570 365 Z" />
+      <rect x="1548" y="318" width="4" height="10" />
+      <circle cx="1550" cy="316" r="3" />
+
+      <!-- Rashtrapati Bhavan / Parliament style dome cluster -->
+      <rect x="1600" y="380" width="130" height="40" />
+      <!-- Colonnade pillars in silhouette -->
+      <line x1="1610" y1="380" x2="1610" y2="420" stroke="#BA9D7B" stroke-width="3" />
+      <line x1="1625" y1="380" x2="1625" y2="420" stroke="#BA9D7B" stroke-width="3" />
+      <line x1="1640" y1="380" x2="1640" y2="420" stroke="#BA9D7B" stroke-width="3" />
+      <line x1="1655" y1="380" x2="1655" y2="420" stroke="#BA9D7B" stroke-width="3" />
+      <line x1="1670" y1="380" x2="1670" y2="420" stroke="#BA9D7B" stroke-width="3" />
+      <line x1="1685" y1="380" x2="1685" y2="420" stroke="#BA9D7B" stroke-width="3" />
+      <line x1="1700" y1="380" x2="1700" y2="420" stroke="#BA9D7B" stroke-width="3" />
+      <line x1="1715" y1="380" x2="1715" y2="420" stroke="#BA9D7B" stroke-width="3" />
+
+      <!-- Massive Central Dome -->
+      <rect x="1635" y="350" width="60" height="30" />
+      <path d="M 1630 350 C 1630 295, 1700 295, 1700 350 Z" />
+      <rect x="1662" y="285" width="6" height="12" />
+      <circle cx="1665" cy="283" r="4" />
+      <!-- Side cupolas (chattris) -->
+      <path d="M 1612 380 L 1612 360 Q 1618 348 1624 360 L 1624 380 Z" />
+      <path d="M 1706 380 L 1706 360 Q 1712 348 1718 360 L 1718 380 Z" />
+
+      <!-- Elegant tall minaret / tower -->
+      <path d="M 1755 420 L 1759 300 L 1762 250 L 1765 210 L 1769 250 L 1772 300 L 1776 420 Z" />
+      <rect x="1757" y="295" width="17" height="5" rx="1" />
+      <rect x="1760" y="245" width="11" height="4" rx="1" />
+      <path d="M 1762 210 Q 1765.5 195 1769 210 Z" />
+      <circle cx="1765.5" cy="193" r="2.5" />
+    </g>
+
+    <!-- INDIA GATE (Triumphal Arch) positioned prominently at x=1840 to 1980 -->
+    <g id="india-gate" fill="url(#monument-sepia-near)">
+      <rect x="1830" y="410" width="160" height="12" rx="1" />
+      <rect x="1840" y="398" width="140" height="12" />
+      <rect x="1848" y="255" width="42" height="143" />
+      <rect x="1930" y="255" width="42" height="143" />
+
+      <path d="M 1856 390 L 1856 330 Q 1869 312 1882 330 L 1882 390 Z" fill="#FAF6EE" opacity="0.65" />
+      <path d="M 1938 390 L 1938 330 Q 1951 312 1964 330 L 1964 390 Z" fill="#FAF6EE" opacity="0.65" />
+
+      <path d="M 1890 398 L 1890 305 Q 1910 270 1930 305 L 1930 398 Z" fill="#F8EFE4" opacity="0.9" />
+      <path d="M 1890 398 L 1890 305 Q 1910 270 1930 305 L 1930 398 L 1926 398 L 1926 308 Q 1910 276 1894 308 L 1894 398 Z" fill="#8C6F4F" opacity="0.5" />
+
+      <rect x="1844" y="242" width="132" height="14" rx="1" />
+      <rect x="1840" y="234" width="140" height="8" rx="1" />
+      <rect x="1848" y="206" width="124" height="28" />
+      <rect x="1844" y="200" width="132" height="6" rx="1" />
+
+      <rect x="1860" y="192" width="100" height="8" />
+      <rect x="1875" y="185" width="70" height="7" />
+      <rect x="1892" y="178" width="36" height="7" />
+      <ellipse cx="1910" cy="174" rx="8" ry="4" />
+      <circle cx="1910" cy="170" r="2.5" />
+    </g>
+
+    <!-- Transition Minarets and Chattris -->
+    <g id="transition-spires" fill="url(#monument-sepia-mid)">
+      <rect x="2000" y="390" width="45" height="30" />
+      <line x1="2005" y1="355" x2="2005" y2="420" stroke="#BA9D7B" stroke-width="2.5" />
+      <line x1="2018" y1="355" x2="2018" y2="420" stroke="#BA9D7B" stroke-width="2" />
+      <line x1="2032" y1="355" x2="2032" y2="420" stroke="#BA9D7B" stroke-width="2" />
+      <line x1="2040" y1="355" x2="2040" y2="420" stroke="#BA9D7B" stroke-width="2.5" />
+      <path d="M 2002 355 C 2002 328, 2043 328, 2043 355 Z" />
+      <line x1="2022.5" y1="320" x2="2022.5" y2="328" stroke="#BA9D7B" stroke-width="2" />
+      <circle cx="2022.5" cy="318" r="2.5" />
+
+      <path d="M 2055 420 L 2060 280 L 2063 210 L 2066 160 L 2070 210 L 2073 280 L 2078 420 Z" />
+      <rect x="2058" y="278" width="17" height="4" rx="1" />
+      <rect x="2061" y="208" width="11" height="3.5" rx="1" />
+      <path d="M 2063 160 Q 2066.5 145 2070 160 Z" />
+      <circle cx="2066.5" cy="142" r="2.5" />
+
+      <path d="M 2090 420 L 2093 330 Q 2097 305 2101 330 L 2104 420 Z" />
+      <circle cx="2097" cy="302" r="2" />
+    </g>
+
+    <!-- TAJ MAHAL MONUMENT & FLANKING MINARETS -->
+    <g id="taj-mahal" fill="url(#monument-sepia-near)">
+      <!-- Left Outer Minaret -->
+      <g id="taj-minaret-left">
+        <rect x="2116" y="405" width="18" height="15" />
+        <path d="M 2118 405 L 2121 280 L 2123 200 L 2125 140 L 2127 200 L 2129 280 L 2132 405 Z" />
+        <rect x="2119" y="325" width="12" height="4" rx="1" />
+        <rect x="2121" y="240" width="8" height="3.5" rx="1" />
+        <rect x="2122" y="170" width="6" height="3" rx="1" />
+        <path d="M 2121 140 C 2121 125, 2129 125, 2129 140 Z" />
+        <line x1="2125" y1="120" x2="2125" y2="125" stroke="#BA9D7B" stroke-width="1.5" />
+        <circle cx="2125" cy="118" r="2" />
+      </g>
+
+      <!-- Main Taj Plinth Platform -->
+      <rect x="2140" y="400" width="220" height="20" rx="1" />
+      <rect x="2145" y="388" width="210" height="12" />
+
+      <!-- Main Structure -->
+      <rect x="2155" y="295" width="190" height="93" />
+      
+      <!-- Central Grand Iwan Arch -->
+      <rect x="2210" y="270" width="80" height="118" rx="2" />
+      <path d="M 2222 388 L 2222 320 Q 2250 280 2278 320 L 2278 388 Z" fill="#F8EFE4" opacity="0.88" />
+      <path d="M 2222 388 L 2222 320 Q 2250 280 2278 320 L 2278 388 L 2274 388 L 2274 322 Q 2250 286 2226 322 L 2226 388 Z" fill="#8C6F4F" opacity="0.4" />
+
+      <!-- Side 2-Tier Arches -->
+      <path d="M 2170 388 L 2170 350 Q 2185 336 2200 350 L 2200 388 Z" fill="#FAF6EE" opacity="0.7" />
+      <path d="M 2170 340 L 2170 310 Q 2185 298 2200 310 L 2200 340 Z" fill="#FAF6EE" opacity="0.7" />
+      <path d="M 2300 388 L 2300 350 Q 2315 336 2330 350 L 2330 388 Z" fill="#FAF6EE" opacity="0.7" />
+      <path d="M 2300 340 L 2300 310 Q 2315 298 2330 310 L 2330 340 Z" fill="#FAF6EE" opacity="0.7" />
+
+      <!-- Drum below central dome -->
+      <rect x="2225" y="240" width="50" height="32" />
+
+      <!-- Iconic Onion Dome of Taj Mahal -->
+      <path d="M 2223 242 C 2212 210, 2224 165, 2250 152 C 2276 165, 2288 210, 2277 242 Z" />
+      
+      <!-- Lotus Crest and Finial -->
+      <ellipse cx="2250" cy="151" rx="6" ry="2.5" />
+      <line x1="2250" y1="126" x2="2250" y2="151" stroke="#AA8C69" stroke-width="2.5" />
+      <circle cx="2250" cy="138" r="3.5" />
+      <circle cx="2250" cy="125" r="2" />
+      <line x1="2250" y1="116" x2="2250" y2="125" stroke="#AA8C69" stroke-width="1.5" />
+
+      <!-- Side Chattris -->
+      <line x1="2175" y1="262" x2="2175" y2="295" stroke="#AA8C69" stroke-width="2" />
+      <line x1="2195" y1="262" x2="2195" y2="295" stroke="#AA8C69" stroke-width="2" />
+      <path d="M 2172 262 C 2172 242, 2198 242, 2198 262 Z" />
+      <line x1="2185" y1="234" x2="2185" y2="242" stroke="#AA8C69" stroke-width="1.5" />
+      <circle cx="2185" cy="232" r="2" />
+
+      <line x1="2305" y1="262" x2="2305" y2="295" stroke="#AA8C69" stroke-width="2" />
+      <line x1="2325" y1="262" x2="2325" y2="295" stroke="#AA8C69" stroke-width="2" />
+      <path d="M 2302 262 C 2302 242, 2328 242, 2328 262 Z" />
+      <line x1="2315" y1="234" x2="2315" y2="242" stroke="#AA8C69" stroke-width="1.5" />
+      <circle cx="2315" cy="232" r="2" />
+
+      <!-- Corner Guldasta -->
+      <line x1="2155" y1="275" x2="2155" y2="295" stroke="#AA8C69" stroke-width="2.5" />
+      <circle cx="2155" cy="273" r="2" />
+      <line x1="2345" y1="275" x2="2345" y2="295" stroke="#AA8C69" stroke-width="2.5" />
+      <circle cx="2345" cy="273" r="2" />
+
+      <!-- Taj Right Outer Minaret -->
+      <g id="taj-minaret-right">
+        <rect x="2372" y="405" width="18" height="15" />
+        <path d="M 2374 405 L 2377 280 L 2379 200 L 2381 140 L 2383 200 L 2385 280 L 2388 405 Z" />
+        <rect x="2375" y="325" width="12" height="4" rx="1" />
+        <rect x="2377" y="240" width="8" height="3.5" rx="1" />
+        <rect x="2378" y="170" width="6" height="3" rx="1" />
+        <path d="M 2377 140 C 2377 125, 2385 125, 2385 140 Z" />
+        <line x1="2381" y1="120" x2="2381" y2="125" stroke="#BA9D7B" stroke-width="1.5" />
+        <circle cx="2381" cy="118" r="2" />
+      </g>
+
+      <!-- Far Right Distant Pavilion -->
+      <path d="M 2420 420 L 2420 375 C 2420 345, 2465 345, 2465 375 L 2465 420 Z" opacity="0.75" />
+      <line x1="2442.5" y1="335" x2="2442.5" y2="345" stroke="#BA9D7B" stroke-width="1.5" />
+      <circle cx="2442.5" cy="333" r="2.5" />
+    </g>
+
+    <!-- Soft watercolor wash mist covering the base to blend into background -->
+    <rect x="1200" y="405" width="1300" height="95" fill="url(#ground-mist)" />
+  </g>
+
+  <!-- ELEGANT INDIAN TRICOLOR RIBBON WAVES -->
+  <g id="tricolor-ribbons">
+    <!-- GREEN RIBBON (Lower Wave) -->
+    <path d="M 450 510 
+             C 650 470, 850 375, 1200 340 
+             C 1550 305, 1850 240, 2220 110 
+             L 2235 145
+             C 1860 275, 1555 345, 1200 380 
+             C 840 415, 645 505, 435 540 Z" 
+          fill="url(#green-flow-layer2)" />
+
+    <path d="M 460 500 
+             C 660 455, 860 365, 1200 330 
+             C 1550 295, 1840 230, 2200 100 
+             L 2212 128 
+             C 1850 255, 1555 323, 1200 358 
+             C 850 395, 650 482, 440 525 Z" 
+          fill="url(#green-flow)" />
+
+    <!-- Soft white light highlight band in-between ribbons -->
+    <path d="M 420 468 
+             C 630 420, 840 330, 1180 295 
+             C 1530 260, 1830 195, 2180 68 
+             L 2192 90 
+             C 1840 216, 1540 282, 1180 318 
+             C 830 355, 620 445, 400 492 Z" 
+          fill="url(#white-sheen)" />
+
+    <!-- SAFFRON / ORANGE RIBBON (Upper Wave) -->
+    <path d="M 390 470 
+             C 600 415, 810 320, 1150 285 
+             C 1500 250, 1800 185, 2150 55 
+             L 2168 88
+             C 1810 215, 1505 282, 1150 318 
+             C 800 355, 590 448, 370 502 Z" 
+          fill="url(#saffron-flow-layer2)" />
+
+    <path d="M 400 455 
+             C 610 405, 820 310, 1150 275 
+             C 1500 240, 1790 175, 2140 45 
+             L 2152 74 
+             C 1800 202, 1505 268, 1150 302 
+             C 810 338, 600 430, 380 480 Z" 
+          fill="url(#saffron-flow)" />
+
+    <!-- Delicate highlights on top edge of saffron wave -->
+    <path d="M 480 435 
+             C 660 388, 850 300, 1160 268 
+             C 1480 234, 1760 172, 2100 48" 
+          stroke="#FFEDD5" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.65" />
+
+    <!-- Delicate highlight on lower edge of green wave -->
+    <path d="M 520 495 
+             C 710 448, 890 365, 1210 335 
+             C 1540 302, 1820 240, 2160 115" 
+          stroke="#DCFCE7" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.6" />
+  </g>
+
+  <!-- Final subtle paper vignette -->
+  <rect width="2500" height="500" fill="url(#subtle-grain)" opacity="0.25" style="mix-blend-mode: multiply; pointer-events: none;" />
+</svg>

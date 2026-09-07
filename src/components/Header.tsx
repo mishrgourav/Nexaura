@@ -109,8 +109,20 @@ export const Header: React.FC<HeaderProps> = ({
   const CurrentIcon = current.icon;
 
   return (
-    <header className="bg-white/95 dark:bg-[#0F172A]/95 backdrop-blur-md text-slate-800 dark:text-white border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40 shadow-xs dark:shadow-md dark:shadow-black/20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+    <header className="relative bg-[#FAF6EE] dark:bg-[#0B1120] text-slate-800 dark:text-white border-b border-amber-900/10 dark:border-slate-800 sticky top-0 z-40 shadow-xs dark:shadow-md dark:shadow-black/20 overflow-hidden">
+      {/* Ultra-wide 5:1 Header Banner Background (Right-aligned tricolor ribbons & faint sepia architectural landmarks) */}
+      <div 
+        className="absolute inset-0 pointer-events-none bg-no-repeat bg-right bg-cover lg:bg-contain opacity-95 dark:opacity-20 transition-opacity"
+        style={{ backgroundImage: "url('/nexaura-header-banner.png')" }}
+        aria-hidden="true"
+      />
+      {/* Contrast wash for text readability on left / branding zone */}
+      <div 
+        className="absolute inset-0 pointer-events-none bg-gradient-to-r from-[#FAF6EE]/90 via-[#FAF6EE]/50 to-transparent dark:from-[#0B1120]/95 dark:via-[#0B1120]/60 dark:to-transparent"
+        aria-hidden="true"
+      />
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 sm:py-4">
         <div className="flex items-center justify-between gap-4">
           {/* Logo & Simple Tagline */}
           <div

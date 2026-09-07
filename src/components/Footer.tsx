@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheck, Clock, RefreshCw, Landmark, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, Clock, RefreshCw, Landmark, CheckCircle2, Download } from 'lucide-react';
 
 interface FooterProps {
   onResetDb?: () => void;
@@ -8,7 +8,7 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ onResetDb, resetting = false }) => {
   return (
-    <footer className="bg-slate-100 dark:bg-[#0A0F1D] border-t border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 text-xs py-6 px-4 sm:px-6 lg:px-8 mt-auto">
+    <footer className="bg-[#FAF7F0]/90 dark:bg-[#0A0F1D]/90 backdrop-blur-xs border-t border-amber-900/10 dark:border-slate-800 text-slate-600 dark:text-slate-400 text-xs py-6 px-4 sm:px-6 lg:px-8 mt-auto">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
         {/* Brand & Tagline */}
         <div className="flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left">
@@ -22,7 +22,7 @@ export const Footer: React.FC<FooterProps> = ({ onResetDb, resetting = false }) 
           </span>
         </div>
 
-        {/* Compliance Badges & DB Reset */}
+        {/* Compliance Badges, Wallpaper Asset & DB Reset */}
         <div className="flex flex-wrap items-center justify-center gap-2.5 text-[11px]">
           <div
             className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700/60 shadow-2xs"
@@ -47,6 +47,19 @@ export const Footer: React.FC<FooterProps> = ({ onResetDb, resetting = false }) 
             <Landmark className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
             <span>PFMS Treasury Direct</span>
           </div>
+
+          {/* Download Raw Wallpaper Asset Link */}
+          <a
+            href="/nexaura-page-bg.png"
+            download="nexaura-heritage-paper-bg.png"
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-1.5 text-stone-700 dark:text-stone-300 bg-amber-100/60 hover:bg-amber-100 dark:bg-slate-800/80 dark:hover:bg-slate-800 px-2.5 py-1 rounded-lg border border-amber-300/60 dark:border-slate-700 transition shadow-2xs"
+            title="Download high-resolution (2400x1800) full-page watercolor watermark background PNG"
+          >
+            <Download className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
+            <span>Page Wallpaper (PNG)</span>
+          </a>
 
           {onResetDb && (
             <button

@@ -1762,6 +1762,63 @@ export class RelationalDatabase {
     }
   }
 
+  async createOrUpdateMatch(data: {
+    problemId: string;
+    startupId: string;
+    matchScore?: number;
+    reason?: string;
+    details?: any;
+  }): Promise<StartupMatch> {
+    const problem = await this.getProblemById(data.problemId);
+    const startup = await this.getStartupById(data.startupId);
+    const matchId = `match-${data.problemId}-${data.startupId}`;
+
+    let score = data.matchScore;
+    let reason = data.reason;
+    let details = data.details || {};
+
+    if ((!score || !reason) && problem && startup) {
+      const calculated = this.calculateMatchScore(problem, startup);
+      score = score || calculated.matchScore;
+      reason = reason || calculated.reason;
+      details = Object.keys(details).length > 0 ? details : calculated.details;
+    }
+
+    const newMatch: StartupMatch = {
+      id: matchId,
+      problemId: data.problemId,
+      startupId: data.startupId,
+      startup: startup || undefined,
+      matchScore: score || 85,
+      reason: reason || 'Initiated match between problem and startup',
+      details,
+      createdAt: new Date().toISOString(),
+    };
+
+    console.log(`[Supabase Write] Recording match in matches table for problem: ${data.problemId} and startup: ${data.startupId} (Score: ${newMatch.matchScore}%)`);
+    if (supabase && this.isSupabaseOperational) {
+      const { data: dbData, error } = await supabase
+        .from('matches')
+        .upsert(mapMatchToDb(newMatch))
+        .select()
+        .single();
+      if (error) {
+        this.handleSupabaseError('createOrUpdateMatch', error);
+      } else if (dbData) {
+        console.log('✅ [Supabase Write Success] Match recorded in Supabase matches table:', matchId);
+      }
+    }
+
+    const existingIdx = this.matches.findIndex(m => m.problemId === data.problemId && m.startupId === data.startupId);
+    if (existingIdx >= 0) {
+      this.matches[existingIdx] = newMatch;
+    } else {
+      this.matches.push(newMatch);
+    }
+
+    return newMatch;
+  }
+
   // ====================================================================
   // AI MATCHING RECOMMENDATION ENGINE (Feature 1)
   // ====================================================================
@@ -1773,71 +1830,146 @@ export class RelationalDatabase {
   ): { matchScore: number; reason: string; details: MatchScoreDetails } {
     let score = 0;
     const matchedKeywords: string[] = [];
-    const probText = (problem.title + ' ' + problem.description + ' ' + problem.category + ' ' + problem.expectedOutcome).toLowerCase();
+    const matchedDescriptionTerms: string[] = [];
+    const matchedKpiTerms: string[] = [];
 
-    // 1. Sector Alignment (Up to 35 pts)
-    const sectorMatch = problem.category.toLowerCase().includes(startup.sector.toLowerCase()) ||
-      startup.sector.toLowerCase().includes(problem.category.toLowerCase());
-    if (sectorMatch) {
-      score += 35;
+    const stopWords = new Set([
+      'the', 'and', 'for', 'with', 'that', 'this', 'from', 'are', 'have', 'been',
+      'across', 'between', 'into', 'over', 'after', 'under', 'using', 'used',
+      'such', 'their', 'which', 'than', 'more', 'also', 'will', 'each', 'about',
+      'without', 'within', 'both', 'through', 'where', 'when', 'what', 'these'
+    ]);
+
+    const tokenize = (text: string): string[] => {
+      return (text || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, ' ')
+        .split(/\s+/)
+        .filter(w => w.length >= 3 && !stopWords.has(w));
+    };
+
+    const probCategoryLower = (problem.category || '').toLowerCase();
+    const probDescLower = (problem.description || '').toLowerCase();
+    const probKpiLower = (problem.expectedOutcome || '').toLowerCase();
+    const probTitleLower = (problem.title || '').toLowerCase();
+    const combinedProbText = `${probTitleLower} ${probCategoryLower} ${probDescLower} ${probKpiLower}`;
+
+    const startupSectorLower = (startup.sector || '').toLowerCase();
+    const startupDescLower = (startup.description || '').toLowerCase();
+
+    // 1. Sector & Category Alignment (Up to 35 pts)
+    let sectorScore = 0;
+    const directSectorMatch = probCategoryLower.includes(startupSectorLower) ||
+      startupSectorLower.includes(probCategoryLower);
+
+    if (directSectorMatch) {
+      sectorScore = 35;
     } else {
-      if (
-        (problem.category.includes('Health') && startup.keywords.some(k => k.includes('health') || k.includes('diagnostic'))) ||
-        (problem.category.includes('Transport') && startup.keywords.some(k => k.includes('traffic') || k.includes('mobility') || k.includes('transit'))) ||
-        (problem.category.includes('Water') && startup.keywords.some(k => k.includes('water') || k.includes('leak') || k.includes('sensor'))) ||
-        (problem.category.includes('Agri') && startup.keywords.some(k => k.includes('crop') || k.includes('pest') || k.includes('farm'))) ||
-        (problem.category.includes('Ed') && startup.keywords.some(k => k.includes('school') || k.includes('learn') || k.includes('student')))
-      ) {
-        score += 25;
+      // Semantic category equivalence mapping
+      const categoryPairs = [
+        { cats: ['health', 'life sciences', 'medical', 'clinical', 'hospital', 'disease'], tech: ['health', 'diagnostic', 'retinopathy', 'tuberculosis', 'patient', 'telemedicine', 'pathology'] },
+        { cats: ['transport', 'urban', 'mobility', 'infrastructure', 'traffic'], tech: ['traffic', 'mobility', 'transit', 'corridor', 'pothole', 'vehicle', 'gps', 'drone', 'flyover', 'sensor'] },
+        { cats: ['water', 'sanitation', 'environment', 'pollution'], tech: ['water', 'leak', 'potability', 'fluoride', 'pipeline', 'sensor', 'acoustic', 'iot', 'sewage', 'jal'] },
+        { cats: ['agri', 'farming', 'crop'], tech: ['crop', 'pest', 'farm', 'drone', 'soil', 'satellite', 'yield', 'farmer', 'irrigation'] },
+        { cats: ['education', 'edtech', 'school', 'skill'], tech: ['school', 'learn', 'student', 'voice', 'tutor', 'literacy', 'vernacular', 'arithmetic'] },
+        { cats: ['energy', 'cleantech', 'power', 'solar'], tech: ['solar', 'energy', 'battery', 'power', 'grid', 'clean'] },
+        { cats: ['civic', 'governance', 'public'], tech: ['citizen', 'grievance', 'workflow', 'transparency', 'audit'] },
+      ];
+
+      for (const pair of categoryPairs) {
+        const hasProbCat = pair.cats.some(c => probCategoryLower.includes(c) || probTitleLower.includes(c));
+        const hasStartupDomain = pair.tech.some(t => startupSectorLower.includes(t) || startup.keywords.some(k => k.toLowerCase().includes(t)));
+        if (hasProbCat && hasStartupDomain) {
+          sectorScore = 26;
+          break;
+        }
       }
     }
+    score += sectorScore;
 
-    // 2. Keyword & Tech Matching (Up to 30 pts)
+    // 2. Technology Tags & Keyword Overlap (Up to 30 pts)
     let keywordPoints = 0;
     for (const kw of startup.keywords) {
       const lowerKw = kw.toLowerCase();
-      if (probText.includes(lowerKw)) {
+      if (combinedProbText.includes(lowerKw)) {
         matchedKeywords.push(kw);
         keywordPoints += 8;
+      } else {
+        // Partial tag token matching
+        const kwTokens = tokenize(lowerKw);
+        const tokenMatch = kwTokens.some(tok => combinedProbText.includes(tok));
+        if (tokenMatch) {
+          matchedKeywords.push(kw);
+          keywordPoints += 5;
+        }
       }
     }
     score += Math.min(30, keywordPoints);
 
-    // 3. Pilot Passport Bonus (15 pts) - checks real active passports
+    // 3. Semantic Description Overlap (Up to 15 pts)
+    const probTokens = new Set([...tokenize(probDescLower), ...tokenize(probTitleLower)]);
+    const startupDescTokens = tokenize(startupDescLower);
+    for (const tok of startupDescTokens) {
+      if (probTokens.has(tok) && !matchedDescriptionTerms.includes(tok)) {
+        matchedDescriptionTerms.push(tok);
+      }
+    }
+    const descOverlapPoints = Math.min(15, matchedDescriptionTerms.length * 3);
+    score += descOverlapPoints;
+
+    // 4. KPI Target & Expected Outcome Alignment (Up to 10 pts)
+    const kpiTokens = new Set(tokenize(probKpiLower));
+    for (const tok of [...startupDescTokens, ...startup.keywords.flatMap(k => tokenize(k))]) {
+      if (kpiTokens.has(tok) && !matchedKpiTerms.includes(tok)) {
+        matchedKpiTerms.push(tok);
+      }
+    }
+    const kpiPoints = Math.min(10, matchedKpiTerms.length * 3.5);
+    score += kpiPoints;
+
+    // 5. Track Record & Verified Pilot Passport Bonus (Up to 10 pts)
     const hasPassport = (activePassports ? activePassports.some(p => p.startupId === startup.id && p.status === 'active') : false) || startup.hasVerifiedPassport;
-    const passportBonus = hasPassport ? 15 : 0;
-    score += passportBonus;
+    if (hasPassport) score += 6;
+    if (startup.pastPilotCount > 0) {
+      score += Math.min(4, startup.pastPilotCount * 1.5 + (startup.successRatePercent >= 90 ? 1 : 0));
+    }
 
-    // 4. Past Track Record (Up to 10 pts)
-    const pastExperienceScore = Math.min(10, startup.pastPilotCount * 4 + (startup.successRatePercent > 90 ? 2 : 0));
-    score += pastExperienceScore;
+    // Normalize final score between 25% and 98%
+    const finalScore = Math.min(98, Math.max(25, Math.round(score)));
 
-    // 5. DPIIT Recognized Status (Up to 10 pts)
-    const dpiitBonus = startup.dpiitStatus === 'Recognized' ? 10 : 3;
-    score += dpiitBonus;
-
-    // Normalize score to 100 max
-    const finalScore = Math.min(99, Math.max(15, Math.round(score)));
-
-    // Generate concise explanation
+    // 6. Build structured reason explanation
     const reasons: string[] = [];
-    if (sectorMatch) reasons.push(`Direct Sector Match (${startup.sector})`);
-    if (matchedKeywords.length > 0) reasons.push(`Matched Tech: ${matchedKeywords.slice(0, 3).join(', ')}`);
-    if (hasPassport) reasons.push(`✅ Active Verified Pilot Passport in Gov`);
-    if (startup.pastPilotCount > 0) reasons.push(`${startup.pastPilotCount} successful gov pilot(s) (${startup.successRatePercent}% success)`);
-    if (startup.dpiitStatus === 'Recognized') reasons.push(`DPIIT Recognized (${startup.dpiitNumber})`);
+    if (directSectorMatch) {
+      reasons.push(`Direct Sector Match (${startup.sector})`);
+    } else if (sectorScore > 0) {
+      reasons.push(`Related Sector Alignment (${startup.sector})`);
+    }
 
-    const reasonText = reasons.join(' • ');
+    if (matchedKeywords.length > 0) {
+      reasons.push(`Matching Tech Tags: ${matchedKeywords.slice(0, 3).join(', ')}`);
+    }
+
+    if (matchedKpiTerms.length > 0) {
+      reasons.push(`KPI Target Alignment on "${matchedKpiTerms.slice(0, 2).join(', ')}"`);
+    } else if (matchedDescriptionTerms.length > 0) {
+      reasons.push(`Scope overlap: ${matchedDescriptionTerms.slice(0, 3).join(', ')}`);
+    }
+
+    if (hasPassport) {
+      reasons.push('Verified Pilot Passport Active');
+    }
+
+    const reasonText = reasons.join(' • ') || `Tech capability alignment with ${startup.sector}`;
 
     return {
       matchScore: finalScore,
-      reason: reasonText || 'General tech capability alignment with problem scope',
+      reason: reasonText,
       details: {
-        sectorMatch,
+        sectorMatch: directSectorMatch || sectorScore > 0,
         keywordMatches: matchedKeywords,
-        pastExperienceScore,
-        dpiitBonus,
-        passportBonus,
+        pastExperienceScore: Math.min(10, startup.pastPilotCount * 4),
+        dpiitBonus: startup.dpiitStatus === 'Recognized' ? 10 : 3,
+        passportBonus: hasPassport ? 15 : 0,
         riskAlignmentScore: problem.riskLevel === 'high' ? (startup.pastPilotCount >= 2 ? 10 : 4) : 10,
       },
     };
@@ -1846,6 +1978,8 @@ export class RelationalDatabase {
   async getRankedMatchesForProblem(problemId: string): Promise<StartupMatch[]> {
     const problem = await this.getProblemById(problemId);
     if (!problem) return [];
+
+    console.log(`[AI Match Engine] 🔍 Starting match calculation for Problem #${problem.id}: "${problem.title}" (Category: ${problem.category}, KPI: "${problem.expectedOutcome?.substring(0, 60)}...")`);
 
     const [startups, activePassports] = await Promise.all([
       this.getStartups(),
@@ -1868,6 +2002,11 @@ export class RelationalDatabase {
 
     matches.sort((a, b) => b.matchScore - a.matchScore);
     const topMatches = matches.slice(0, 10);
+
+    console.log(`[AI Match Engine] ✅ Evaluated ${startups.length} startups for Problem #${problem.id}. Produced top ${topMatches.length} ranked matches:`);
+    topMatches.forEach((m, idx) => {
+      console.log(`  [Rank #${idx + 1}] ${m.startup?.name} | Score: ${m.matchScore}% | Sector: ${m.startup?.sector} | Reason: ${m.reason}`);
+    });
 
     // Persist matches asynchronously to Supabase
     if (supabase && topMatches.length > 0) {

@@ -130,6 +130,23 @@ export const DepartmentDashboard: React.FC<DepartmentDashboardProps> = ({
   const activePilots = pilots.filter((p) => p.status === 'active');
   const completedPilots = pilots.filter((p) => p.status === 'completed');
 
+  const handleInitiatePilotWithMatchRecord = async (prob: ProblemStatement, startup: Startup) => {
+    console.log('[DepartmentDashboard] Proposing pilot & creating match row in database for:', prob.id, startup.id);
+    try {
+      await fetch('/api/matches', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          problemId: prob.id,
+          startupId: startup.id,
+        }),
+      });
+    } catch (err) {
+      console.warn('Match record write warning:', err);
+    }
+    onInitiatePilot(prob, startup);
+  };
+
   return (
     <div className="space-y-6 pb-12">
       {/* Real-time AI Pilot Monitoring Alert Banner (Appears when High Risk or Deadline <= 3 Days) */}
@@ -375,7 +392,11 @@ export const DepartmentDashboard: React.FC<DepartmentDashboardProps> = ({
                     return (
                       <div
                         key={prob.id}
-                        onClick={() => setSelectedProblemId(prob.id)}
+                        onClick={() => {
+                          console.log('[DepartmentDashboard] Problem statement card clicked:', prob.id, prob.title);
+                          setSelectedProblemId(prob.id);
+                          onSelectProblem(prob);
+                        }}
                         className={`p-4 rounded-xl border transition-all cursor-pointer ${
                           isSelected
                             ? 'bg-slate-50 dark:bg-[#0F172A] border-teal-500 ring-1 ring-teal-500/40 shadow-xs'
@@ -400,6 +421,23 @@ export const DepartmentDashboard: React.FC<DepartmentDashboardProps> = ({
                           </span>
                           <span className="text-slate-400 dark:text-slate-500">Risk: {prob.riskLevel}</span>
                         </div>
+
+                        <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                          <span className="text-[10px] text-slate-400 font-medium">Click to inspect full specs</span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              console.log('[DepartmentDashboard] "View Details & Matches" clicked for:', prob.id);
+                              setSelectedProblemId(prob.id);
+                              onSelectProblem(prob);
+                            }}
+                            className="inline-flex items-center gap-1 text-[11px] font-bold text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 hover:underline"
+                          >
+                            <span>View Details & Matches</span>
+                            <ChevronRight className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
                     );
                   })}
@@ -421,9 +459,24 @@ export const DepartmentDashboard: React.FC<DepartmentDashboardProps> = ({
                     Evaluated for: <strong className="text-slate-800 dark:text-slate-200">{currentProblem?.title || 'Selected Challenge'}</strong>
                   </p>
                 </div>
-                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-700/60 self-start sm:self-center">
-                  {aiMatches.length} Startups Evaluated
-                </span>
+                <div className="flex items-center gap-2 self-start sm:self-center">
+                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-700/60">
+                    {aiMatches.length} Evaluated
+                  </span>
+                  {currentProblem && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        console.log('[DepartmentDashboard] Full Detail View opened for:', currentProblem.id);
+                        onSelectProblem(currentProblem);
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 shadow-xs transition"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Full Detail View</span>
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* AI Procurement Committee Narrative Banner if present */}
@@ -472,7 +525,7 @@ export const DepartmentDashboard: React.FC<DepartmentDashboardProps> = ({
                       key={match.startup.id}
                       match={match}
                       rank={idx + 1}
-                      onInitiatePilot={() => currentProblem && onInitiatePilot(currentProblem, match.startup)}
+                      onInitiatePilot={() => currentProblem && handleInitiatePilotWithMatchRecord(currentProblem, match.startup)}
                       onViewPassport={onViewPassport}
                       onExplainWithAi={handleExplainWithAi}
                     />

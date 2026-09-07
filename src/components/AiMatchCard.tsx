@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StartupMatch } from '../types';
-import { Sparkles, Award, ShieldCheck, Info, Bot, ChevronRight, Zap } from 'lucide-react';
+import { Sparkles, Award, ShieldCheck, Info, Bot, ChevronRight, Zap, Rocket } from 'lucide-react';
 
 interface AiMatchCardProps {
   match: StartupMatch;
@@ -251,9 +251,10 @@ export const AiMatchCard: React.FC<AiMatchCardProps> = ({
           <button
             type="button"
             onClick={() => onInitiatePilot(startup.id)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 transition-all shadow-xs shadow-teal-500/20 hover:shadow-teal-500/30 btn-hover"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 transition-all shadow-xs shadow-teal-500/20 hover:shadow-teal-500/30 btn-hover"
           >
-            <span>Initiate Pilot Agreement</span>
+            <Rocket className="w-3.5 h-3.5" />
+            <span>Propose Pilot</span>
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>

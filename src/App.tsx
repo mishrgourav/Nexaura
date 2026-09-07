@@ -28,6 +28,7 @@ import { PassportDetailModal } from './components/PassportDetailModal';
 import { PilotPassportModal } from './components/PilotPassportModal';
 import { PassportEvaluationModal } from './components/PassportEvaluationModal';
 import { PassportEvaluationInputs } from './utils/passportScore';
+import { ProblemDetailModal } from './components/ProblemDetailModal';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { AlertCircle, CheckCircle2, Info, Loader2 } from 'lucide-react';
 import { useAuth } from './context/AuthContext';
@@ -76,6 +77,8 @@ export function App() {
 
   // Modal States
   const [isProblemModalOpen, setIsProblemModalOpen] = useState(false);
+  const [isProblemDetailModalOpen, setIsProblemDetailModalOpen] = useState(false);
+  const [selectedProblemForDetail, setSelectedProblemForDetail] = useState<ProblemStatement | null>(null);
   const [isCreatePilotModalOpen, setIsCreatePilotModalOpen] = useState(false);
   const [selectedProblemForPilot, setSelectedProblemForPilot] = useState<ProblemStatement | null>(null);
   const [selectedStartupForPilot, setSelectedStartupForPilot] = useState<Startup | null>(null);
@@ -235,6 +238,25 @@ export function App() {
     setSelectedProblemForPilot(problem);
     setSelectedStartupForPilot(startup);
     setIsCreatePilotModalOpen(true);
+  };
+
+  // Handler 2b: Open Problem Detail View with Ranked Startup Matches
+  const handleSelectProblemForDetail = (problem: ProblemStatement) => {
+    console.log('[App] Opening ProblemDetailModal for problem:', problem.id, problem.title);
+    setSelectedProblemForDetail(problem);
+    setIsProblemDetailModalOpen(true);
+  };
+
+  // Handler 2c: Propose Pilot directly from Problem Detail View
+  const handleProposePilotFromDetail = (
+    problem: ProblemStatement,
+    startup: Startup,
+    score: number,
+    reason: string
+  ) => {
+    console.log(`[App] Propose Pilot clicked from detail view: problem=${problem.id}, startup=${startup.id}, score=${score}%, reason=${reason}`);
+    setIsProblemDetailModalOpen(false);
+    handleInitiatePilot(problem, startup);
   };
 
   const handleCreatePilot = async (pilotData: any) => {
@@ -727,7 +749,7 @@ export function App() {
                 }
                 setIsProblemModalOpen(true);
               }}
-              onSelectProblem={() => {}}
+              onSelectProblem={handleSelectProblemForDetail}
               onInitiatePilot={handleInitiatePilot}
               onViewPilotDetail={handleViewPilotDetail}
               onViewPassport={handleViewPassportByStartup}
@@ -835,6 +857,16 @@ export function App() {
       <Footer onResetDb={handleResetDatabase} resetting={resettingDb} />
 
       {/* Modals */}
+      <ProblemDetailModal
+        isOpen={isProblemDetailModalOpen}
+        onClose={() => setIsProblemDetailModalOpen(false)}
+        problem={selectedProblemForDetail}
+        startups={startups}
+        passports={passports}
+        onProposePilot={handleProposePilotFromDetail}
+        onViewPassport={handleViewPassportByStartup}
+      />
+
       <ProblemModal
         isOpen={isProblemModalOpen}
         onClose={() => setIsProblemModalOpen(false)}

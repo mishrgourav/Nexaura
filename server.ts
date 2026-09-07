@@ -419,6 +419,36 @@ app.get('/api/matches/:problemId', async (req: Request, res: Response) => {
   }
 });
 
+app.post('/api/matches', async (req: Request, res: Response) => {
+  try {
+    const { problemId, problem_id, startupId, startup_id, matchScore, match_score, reason, details } = req.body;
+    const pId = problemId || problem_id;
+    const sId = startupId || startup_id;
+
+    if (!pId || !sId) {
+      return res.status(400).json({ error: 'problemId and startupId are required' });
+    }
+
+    console.log(`[API /api/matches] Creating match row linking problem: ${pId} and startup: ${sId}`);
+    const match = await db.createOrUpdateMatch({
+      problemId: pId,
+      startupId: sId,
+      matchScore: Number(matchScore || match_score) || undefined,
+      reason: reason || undefined,
+      details: details || undefined,
+    });
+
+    res.status(201).json({
+      success: true,
+      match,
+      message: 'Match successfully created in matches table and added to pilot pipeline',
+    });
+  } catch (err: any) {
+    console.error('[API /api/matches] Error creating match:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // AI deep match evaluation narrative
 app.post('/api/ai-match/explain', async (req: Request, res: Response) => {
   try {

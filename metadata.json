@@ -1,0 +1,6 @@
+{
+  "name": "StartupConnect Gov",
+  "description": "A startup-friendly public procurement platform that helps government departments discover, pilot, and scale innovative solutions from startups.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

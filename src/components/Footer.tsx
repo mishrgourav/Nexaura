@@ -13,10 +13,8 @@ export const Footer: React.FC<FooterProps> = ({ onResetDb, resetting = false }) 
         {/* Brand & Tagline */}
         <div className="flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-gradient-to-tr from-teal-500 to-blue-600 flex items-center justify-center text-white font-bold text-xs shadow-2xs">
-              SC
-            </div>
-            <span className="font-bold text-slate-800 dark:text-slate-200">StartupConnect Gov</span>
+            <img src="/nexora-logo.png" alt="NEXAURA" className="w-6 h-6 object-contain" />
+            <span className="font-bold text-slate-800 dark:text-slate-200">NEXAURA</span>
           </div>
           <span className="hidden sm:inline text-slate-300 dark:text-slate-600">|</span>
           <span className="text-slate-500 dark:text-slate-400 text-[11px]">

@@ -118,18 +118,22 @@ export const Header: React.FC<HeaderProps> = ({
             className="flex items-center space-x-3 cursor-pointer group select-none"
             title="Return to Portal Navigation"
           >
-            <div className="w-9 h-9 rounded-xl border-2 border-blue-500/80 dark:border-blue-400/80 bg-white dark:bg-slate-900 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
-              <Building2 className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+            <div className="h-10 w-10 sm:h-11 sm:w-11 flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
+              <img
+                src="/nexora-logo.png"
+                alt="NEXAURA Logo"
+                className="w-full h-full object-contain drop-shadow-xs"
+              />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="text-base sm:text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">
-                  StartupConnect
+                  NEXAURA
                 </span>
-                <span className="inline-block w-6 h-4 bg-gradient-to-r from-teal-400 to-blue-600 rounded-xs shadow-2xs"></span>
+                <span className="inline-block w-5 h-3.5 bg-gradient-to-r from-amber-500 via-blue-600 to-emerald-500 rounded-xs shadow-2xs"></span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 hidden sm:block font-normal">
-                Connecting Government Challenges with Startup Innovation
+              <p className="text-xs text-slate-500 dark:text-slate-400 hidden sm:block font-medium">
+                Next Minds. Bold Innovations.
               </p>
             </div>
           </div>

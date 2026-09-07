@@ -307,7 +307,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <Lock className="w-4 h-4" />
               </div>
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                {mode === 'login' ? 'Sign In to StartupConnect' : 'Create Sandbox Account'}
+                {mode === 'login' ? 'Sign In to NEXAURA' : 'Create Sandbox Account'}
               </h3>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">

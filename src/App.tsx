@@ -953,6 +953,7 @@ export function App() {
           passport={selectedPassportForDetail}
           canEvaluate={currentRole === 'validator' || currentRole === 'admin'}
           currentRole={currentRole}
+          currentUser={currentUser}
           onOpenEvaluation={() => {
             setIsPilotPassportModalOpen(false);
             if (selectedPilotForPassport) {

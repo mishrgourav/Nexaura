@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Pilot, PilotPassport, PassportCategory, UserRole } from '../types';
+import { Pilot, PilotPassport, PassportCategory, UserRole, User } from '../types';
 import { calculatePilotPassportMetrics, PassportScoreBreakdown } from '../utils/passportScore';
+import { generateCertificateHtml } from '../utils/generateCertificateHtml';
 import {
   X,
   Award,
@@ -12,6 +13,8 @@ import {
   Sparkles,
   Check,
   FileCheck,
+  Printer,
+  FileDown,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useCountUp } from '../utils/useCountUp';
@@ -25,6 +28,7 @@ interface PilotPassportModalProps {
   onOpenEvaluation?: (pilot: Pilot) => void;
   canEvaluate?: boolean;
   currentRole?: UserRole;
+  currentUser?: User | null;
 }
 
 const PilotPassportModalContent: React.FC<PilotPassportModalProps> = ({
@@ -35,9 +39,12 @@ const PilotPassportModalContent: React.FC<PilotPassportModalProps> = ({
   onOpenEvaluation,
   canEvaluate = false,
   currentRole,
+  currentUser,
 }) => {
   const [activeTab, setActiveTab] = useState<'scorecard' | 'certificate'>('scorecard');
   const [copied, setCopied] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadSuccess, setDownloadSuccess] = useState(false);
 
   // Log data object being rendered for debugging and transparency
   useEffect(() => {
@@ -137,7 +144,8 @@ const PilotPassportModalContent: React.FC<PilotPassportModalProps> = ({
       passport?.validator?.name ||
       passport?.validatorName ||
       (passport as any)?.validator_name ||
-      'Er. Tarun Bhattacharya (QCI / NEERI)';
+      (currentUser?.role === 'validator' ? `${currentUser.name} (${currentUser.organization || 'Empanelled Validator'})` : null) ||
+      'Dr. K. S. Raman (CSIR-CRRI / Empanelled Validator)';
 
     const totalBudgetLakhs =
       pilot?.totalBudgetLakhs ??
@@ -202,6 +210,109 @@ const PilotPassportModalContent: React.FC<PilotPassportModalProps> = ({
         }
       } catch (err) {
         console.warn('Clipboard write error:', err);
+      }
+    };
+
+    // Resilient Print and Download Handler: Works consistently across all roles (Gov, Startup, Validator, Admin)
+    const handlePrintOrDownload = (action: 'both' | 'print' | 'download' = 'both') => {
+      // Ensure we are viewing the certificate tab so the DOM elements are rendered
+      if (activeTab !== 'certificate') {
+        setActiveTab('certificate');
+      }
+
+      setIsDownloading(true);
+
+      try {
+        const certData = {
+          startupName,
+          departmentName,
+          problemTitle,
+          validatorName:
+            validatorName ||
+            (currentUser?.role === 'validator' ? `${currentUser.name} (${currentUser.organization || 'CSIR-CRRI'})` : null) ||
+            'Dr. K. S. Raman (CSIR-CRRI / Empanelled Validator)',
+          validatorOrg: pilot?.validator?.organization || currentUser?.organization || 'CSIR-CRRI',
+          category,
+          score,
+          isScaleUpRecommended,
+          totalBudgetLakhs,
+          certificateHash,
+          shortHash,
+          dpiitNumber:
+            pilot?.startup?.dpiitNumber ||
+            pilot?.startup?.dpiit_number ||
+            (pilot as any)?.dpiit_number ||
+            (passport as any)?.dpiit_number ||
+            passport?.dpiitNumber ||
+            'DIPP94821',
+          validationDate:
+            passport?.validationDate ||
+            (pilot as any)?.validated_at ||
+            new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }),
+          sector: pilot?.sector || passport?.sector || 'GovTech & Public Procurement',
+        };
+
+        const certHtml = generateCertificateHtml(certData);
+
+        // 1. Direct Blob Download (100% reliable in iframes and sandboxes)
+        if (action === 'download' || action === 'both') {
+          const blob = new Blob([certHtml], { type: 'text/html;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          const cleanStartup = (startupName || 'Startup').replace(/[^a-zA-Z0-9_-]/g, '_');
+          a.href = url;
+          a.download = `Pilot_Passport_Credential_${cleanStartup}.html`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+
+        // 2. Open dedicated print popup or trigger window.print()
+        if (action === 'print' || action === 'both') {
+          let popupTriggered = false;
+          try {
+            const printWin = window.open('', '_blank');
+            if (printWin) {
+              printWin.document.open();
+              printWin.document.write(certHtml);
+              printWin.document.close();
+              printWin.focus();
+              setTimeout(() => {
+                try {
+                  printWin.print();
+                } catch (e) {
+                  console.warn('Popup print trigger info:', e);
+                }
+              }, 400);
+              popupTriggered = true;
+            }
+          } catch (popupErr) {
+            console.warn('Print popup window restricted:', popupErr);
+          }
+
+          if (!popupTriggered) {
+            try {
+              window.print();
+            } catch (nativeErr) {
+              console.warn('Native window.print was restricted in sandbox:', nativeErr);
+            }
+          }
+        }
+
+        setDownloadSuccess(true);
+        setTimeout(() => {
+          setDownloadSuccess(false);
+          setIsDownloading(false);
+        }, 2200);
+      } catch (printErr) {
+        console.error('❌ [PilotPassportModal] Print/Download handler exception:', printErr);
+        setIsDownloading(false);
+        try {
+          window.print();
+        } catch (fallbackErr) {
+          console.warn('Fallback print exception:', fallbackErr);
+        }
       }
     };
 
@@ -693,7 +804,33 @@ const PilotPassportModalContent: React.FC<PilotPassportModalProps> = ({
 
             {/* TAB 2: Official Signed Credential Certificate */}
             {activeTab === 'certificate' && (
-              <div className="border-2 border-amber-300 dark:border-amber-500/40 rounded-2xl p-6 sm:p-7 bg-white dark:bg-[#1E293B] shadow-sm relative">
+              <div
+                id="official-digital-certificate"
+                className="printable-certificate border-2 border-amber-300 dark:border-amber-500/40 rounded-2xl p-6 sm:p-7 bg-white dark:bg-[#1E293B] shadow-sm relative"
+              >
+                <div className="flex justify-end items-center gap-2 mb-2 no-print">
+                  <button
+                    id="cert-quick-download-btn"
+                    onClick={() => handlePrintOrDownload('download')}
+                    disabled={isDownloading}
+                    className="text-[11px] font-semibold text-slate-700 dark:text-slate-200 hover:text-amber-800 dark:hover:text-amber-300 bg-amber-50/80 dark:bg-amber-950/50 hover:bg-amber-100 dark:hover:bg-amber-900/60 border border-amber-200 dark:border-amber-800/60 px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition cursor-pointer"
+                    title="Download official digital credential file (.html/PDF)"
+                  >
+                    <FileDown className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                    <span>Download File</span>
+                  </button>
+                  <button
+                    id="cert-quick-print-btn"
+                    onClick={() => handlePrintOrDownload('print')}
+                    disabled={isDownloading}
+                    className="text-[11px] font-semibold text-slate-700 dark:text-slate-200 hover:text-teal-800 dark:hover:text-teal-300 bg-teal-50/80 dark:bg-teal-950/50 hover:bg-teal-100 dark:hover:bg-teal-900/60 border border-teal-200 dark:border-teal-800/60 px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition cursor-pointer"
+                    title="Print official digital certificate"
+                  >
+                    <Printer className="w-3 h-3 text-teal-600 dark:text-teal-400" />
+                    <span>Print</span>
+                  </button>
+                </div>
+
                 <div className="text-center space-y-1.5 pb-4 border-b border-slate-200 dark:border-slate-700/80">
                   <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 p-0.5 shadow-md mb-1">
                     <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center">
@@ -796,11 +933,27 @@ const PilotPassportModalContent: React.FC<PilotPassportModalProps> = ({
             <div className="flex items-center space-x-2">
               <button
                 id="pilot-passport-print-btn"
-                onClick={() => window.print()}
-                className="bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-semibold px-4 py-2 rounded-xl flex items-center gap-1.5 transition shadow-2xs cursor-pointer"
+                onClick={() => handlePrintOrDownload('both')}
+                disabled={isDownloading}
+                className="bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-semibold px-4 py-2 rounded-xl flex items-center gap-1.5 transition shadow-2xs cursor-pointer active:scale-98 disabled:opacity-75"
+                title="Print & Download Official Digital Certificate"
               >
-                <Download className="w-3.5 h-3.5 text-slate-500 dark:text-slate-300" />
-                <span>Print / Download</span>
+                {downloadSuccess ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-500" />
+                    <span className="text-emerald-600 dark:text-emerald-400 font-bold">Downloaded & Ready!</span>
+                  </>
+                ) : isDownloading ? (
+                  <>
+                    <Download className="w-3.5 h-3.5 text-teal-500 animate-bounce" />
+                    <span>Preparing Document...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-3.5 h-3.5 text-slate-500 dark:text-slate-300" />
+                    <span>Print / Download</span>
+                  </>
+                )}
               </button>
               <button
                 id="pilot-passport-modal-footer-close-btn"

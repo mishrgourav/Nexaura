@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { PilotPassport } from '../types';
+import { generateCertificateHtml } from '../utils/generateCertificateHtml';
 import {
   X,
   Award,
@@ -9,6 +10,8 @@ import {
   Copy,
   Check,
   AlertTriangle,
+  Printer,
+  FileDown,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { ErrorBoundary } from './ErrorBoundary';
@@ -25,6 +28,8 @@ const PassportDetailModalContent: React.FC<PassportDetailModalProps> = ({
   passport,
 }) => {
   const [copied, setCopied] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadSuccess, setDownloadSuccess] = useState(false);
 
   // Log the exact data object being rendered for debugging and transparency
   React.useEffect(() => {
@@ -198,6 +203,88 @@ const PassportDetailModalContent: React.FC<PassportDetailModalProps> = ({
         }
       } catch (err) {
         console.warn('Clipboard write error:', err);
+      }
+    };
+
+    const handlePrintOrDownload = (action: 'both' | 'print' | 'download' = 'both') => {
+      setIsDownloading(true);
+      try {
+        const certData = {
+          startupName,
+          departmentName: departmentWorkedWith,
+          problemTitle,
+          validatorName: validatorName || 'Dr. K. S. Raman (CSIR-CRRI / Empanelled Validator)',
+          validatorOrg,
+          category: passportCategory,
+          score: passportScore,
+          isScaleUpRecommended: true,
+          totalBudgetLakhs: passport?.totalBudgetLakhs || 24.0,
+          certificateHash,
+          shortHash,
+          dpiitNumber: passport?.dpiitNumber || (passport as any)?.dpiit_number || dpiitNumber || 'DIPP94821',
+          validationDate: formattedValidationDate,
+          sector: passport?.sector || sector || 'GovTech Innovation',
+        };
+
+        const certHtml = generateCertificateHtml(certData);
+
+        if (action === 'download' || action === 'both') {
+          const blob = new Blob([certHtml], { type: 'text/html;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          const cleanStartup = (startupName || 'Startup').replace(/[^a-zA-Z0-9_-]/g, '_');
+          a.href = url;
+          a.download = `Pilot_Passport_Credential_${cleanStartup}.html`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+
+        if (action === 'print' || action === 'both') {
+          let popupTriggered = false;
+          try {
+            const printWin = window.open('', '_blank');
+            if (printWin) {
+              printWin.document.open();
+              printWin.document.write(certHtml);
+              printWin.document.close();
+              printWin.focus();
+              setTimeout(() => {
+                try {
+                  printWin.print();
+                } catch (e) {
+                  console.warn('Popup print trigger info:', e);
+                }
+              }, 400);
+              popupTriggered = true;
+            }
+          } catch (popupErr) {
+            console.warn('Print popup window restricted:', popupErr);
+          }
+
+          if (!popupTriggered) {
+            try {
+              window.print();
+            } catch (nativeErr) {
+              console.warn('Native window.print was restricted:', nativeErr);
+            }
+          }
+        }
+
+        setDownloadSuccess(true);
+        setTimeout(() => {
+          setDownloadSuccess(false);
+          setIsDownloading(false);
+        }, 2200);
+      } catch (printErr) {
+        console.error('❌ [PassportDetailModal] Print/Download handler exception:', printErr);
+        setIsDownloading(false);
+        try {
+          window.print();
+        } catch (fallbackErr) {
+          console.warn('Fallback print exception:', fallbackErr);
+        }
       }
     };
 
@@ -452,11 +539,27 @@ const PassportDetailModalContent: React.FC<PassportDetailModalProps> = ({
             <div className="flex items-center space-x-2">
               <button
                 id="passport-download-btn"
-                onClick={() => window.print()}
-                className="bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-semibold px-4 py-2 rounded-xl flex items-center gap-1.5 transition shadow-2xs cursor-pointer"
+                onClick={() => handlePrintOrDownload('both')}
+                disabled={isDownloading}
+                className="bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-semibold px-4 py-2 rounded-xl flex items-center gap-1.5 transition shadow-2xs cursor-pointer active:scale-98 disabled:opacity-75"
+                title="Print & Download Official Digital Certificate"
               >
-                <Download className="w-3.5 h-3.5 text-slate-500 dark:text-slate-300" />
-                <span>Download Certificate</span>
+                {downloadSuccess ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-500" />
+                    <span className="text-emerald-600 dark:text-emerald-400 font-bold">Downloaded & Ready!</span>
+                  </>
+                ) : isDownloading ? (
+                  <>
+                    <Download className="w-3.5 h-3.5 text-teal-500 animate-bounce" />
+                    <span>Preparing Document...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-3.5 h-3.5 text-slate-500 dark:text-slate-300" />
+                    <span>Download Certificate</span>
+                  </>
+                )}
               </button>
               <button
                 id="passport-close-btn"

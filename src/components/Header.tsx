@@ -109,18 +109,19 @@ export const Header: React.FC<HeaderProps> = ({
   const CurrentIcon = current.icon;
 
   return (
-    <header className="relative bg-[#FAF6EE] dark:bg-[#0B1120] text-slate-800 dark:text-white border-b border-amber-900/10 dark:border-slate-800 sticky top-0 z-40 shadow-xs dark:shadow-md dark:shadow-black/20 overflow-hidden">
+    <header className="relative bg-[#FAF6EE] dark:bg-[#0B1120] text-slate-800 dark:text-white border-b border-amber-900/10 dark:border-slate-800 sticky top-0 z-40 shadow-xs dark:shadow-md dark:shadow-black/20">
       {/* Ultra-wide 5:1 Header Banner Background (Right-aligned tricolor ribbons & faint sepia architectural landmarks) */}
-      <div 
-        className="absolute inset-0 pointer-events-none bg-no-repeat bg-right bg-cover lg:bg-contain opacity-95 dark:opacity-20 transition-opacity"
-        style={{ backgroundImage: "url('/nexaura-header-banner.png')" }}
-        aria-hidden="true"
-      />
-      {/* Contrast wash for text readability on left / branding zone */}
-      <div 
-        className="absolute inset-0 pointer-events-none bg-gradient-to-r from-[#FAF6EE]/90 via-[#FAF6EE]/50 to-transparent dark:from-[#0B1120]/95 dark:via-[#0B1120]/60 dark:to-transparent"
-        aria-hidden="true"
-      />
+      {/* Contained within an isolated overflow-hidden wrapper so dropdown menus are never clipped */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        <div 
+          className="absolute inset-0 bg-no-repeat bg-right bg-cover lg:bg-contain opacity-95 dark:opacity-20 transition-opacity"
+          style={{ backgroundImage: "url('/nexaura-header-banner.png')" }}
+        />
+        {/* Contrast wash for text readability on left / branding zone */}
+        <div 
+          className="absolute inset-0 bg-gradient-to-r from-[#FAF6EE]/90 via-[#FAF6EE]/50 to-transparent dark:from-[#0B1120]/95 dark:via-[#0B1120]/60 dark:to-transparent"
+        />
+      </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 sm:py-4">
         <div className="flex items-center justify-between gap-4">
@@ -153,7 +154,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Right Action Toolbar: Theme Toggle + Auth / Profile Dropdown */}
           <div className="flex items-center space-x-2.5 sm:space-x-3">
             {/* Info Tooltip for Compliance & Directives */}
-            <div className="relative hidden md:block">
+            <div className="relative z-50 hidden md:block">
               <button
                 onMouseEnter={() => setShowInfoTooltip(true)}
                 onMouseLeave={() => setShowInfoTooltip(false)}
@@ -166,7 +167,7 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
 
               {showInfoTooltip && (
-                <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-700 rounded-xl p-3.5 shadow-xl text-xs text-slate-600 dark:text-slate-300 z-50 animate-in fade-in duration-150">
+                <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-700 rounded-xl p-3.5 shadow-xl text-xs text-slate-600 dark:text-slate-300 z-[60] animate-in fade-in duration-150">
                   <div className="font-semibold text-slate-900 dark:text-white mb-1.5 flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5 text-teal-500 dark:text-teal-400" />
                     <span>Sandbox Compliance Framework</span>
@@ -197,7 +198,7 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Authentication State & User Profile Controls */}
             {currentUser ? (
               /* Authenticated User Pill with Profile & Logout Menu */
-              <div className="relative" ref={dropdownRef}>
+              <div className="relative z-50" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className={`flex items-center space-x-2 px-3 py-1.5 rounded-xl border text-xs font-semibold transition shadow-2xs ${current.badgeBg} ${current.badgeText} ${current.badgeBorder} hover:brightness-95 dark:hover:brightness-110`}
@@ -212,7 +213,7 @@ export const Header: React.FC<HeaderProps> = ({
 
                 {/* Profile & Session Management Dropdown */}
                 {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-700 rounded-2xl p-3 shadow-xl dark:shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-700 rounded-2xl p-3 shadow-xl dark:shadow-2xl z-[60] animate-in fade-in zoom-in-95 duration-150">
                     {/* User Profile Header */}
                     <div className="px-3 py-2.5 bg-slate-50 dark:bg-slate-800/70 rounded-xl mb-2.5 border border-slate-200/80 dark:border-slate-700/60">
                       <div className="flex items-center justify-between gap-1 mb-1">

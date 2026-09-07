@@ -112,4 +112,75 @@ button:not(:disabled):not(.no-hover-scale):active,
   }
 }
 
+/* ====================================================================
+   PRINT STYLES: Official Pilot Passport & Scale-Up Credential Certificates
+   ==================================================================== */
+@media print {
+  body {
+    background-color: #ffffff !important;
+    background-image: none !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Hide app navigation, background decorative watermarks, footers, headers, close buttons */
+  header,
+  footer,
+  nav,
+  #app-header,
+  #app-footer,
+  .modal-backdrop-anim,
+  #pilot-passport-modal-close-btn,
+  #pilot-passport-modal-footer-close-btn,
+  #pilot-passport-celebrate-btn,
+  #tab-scorecard-btn,
+  #tab-certificate-btn,
+  #edit-evaluation-btn,
+  #copy-certificate-hash-btn,
+  #pilot-passport-print-btn,
+  #passport-download-btn,
+  #passport-close-btn {
+    display: none !important;
+  }
+
+  /* Reset modal positioning and overflow during browser print */
+  #pilot-passport-modal,
+  #passport-modal {
+    position: static !important;
+    inset: auto !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+    overflow: visible !important;
+  }
+
+  #pilot-passport-modal > div,
+  #passport-modal > div {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    color: #000 !important;
+  }
+
+  /* Ensure printable certificate is crisp, sharp, and centered */
+  .printable-certificate,
+  #official-digital-certificate {
+    display: block !important;
+    page-break-inside: avoid !important;
+    border: 3px double #d97706 !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    padding: 24px !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    box-shadow: none !important;
+  }
+}
+
 

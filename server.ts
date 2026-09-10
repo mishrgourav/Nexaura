@@ -72,7 +72,14 @@ let aiClient: GoogleGenAI | null = null;
 function getAI(): GoogleGenAI | null {
   if (!aiClient && process.env.GEMINI_API_KEY) {
     try {
-      aiClient = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      aiClient = new GoogleGenAI({
+        apiKey: process.env.GEMINI_API_KEY,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build',
+          },
+        },
+      });
     } catch (err) {
       console.warn('Gemini initialization skipped:', err);
     }
@@ -1121,6 +1128,156 @@ app.post('/api/pilots/:id/passport-score', async (req: Request, res: Response) =
   } catch (err: any) {
     console.error('Error saving passport score:', err);
     res.status(500).json({ error: err.message });
+  }
+});
+
+// ----------------------------------------------------
+// HELP ASSISTANT: Scoped Platform Guide Endpoint (Gemini 3.8 Flash)
+// ----------------------------------------------------
+const NEXORA_GUIDE_SYSTEM_INSTRUCTION = `You are the NEXORA Platform Guide and Help Assistant.
+Your sole job is to explain how NEXORA (the Maharashtra GovTech Procurement Sandbox) works and answer questions about the platform itself.
+
+STRICT SCOPE & KNOWLEDGE BASE:
+1. THE 5 USER ROLES:
+   - Gov Department: Publishes municipal and state problem statements, reviews startup applications, approves milestone deliverables, monitors pilot telemetry, and authorizes milestone-linked payments via PFMS.
+   - Startup Innovator: DPIIT-registered innovative startups who discover challenges, submit bids with zero EMD, execute sandbox pilots, upload proof of milestone completion, and earn digital Pilot Passports.
+   - Independent Validator: Empanelled third-party technical evaluation councils (such as CSIR, QCI, NEERI) who independently verify test benchmarks, audit deliverables on-site, and calculate objective validation scores.
+   - Admin / MSInS: Maharashtra State Innovation Society directorate overseeing sandbox operations, maintaining departmental and startup registries, monitoring compliance, and certifying state-wide scale-up procurement under GFR Rule 149.
+   - Public Transparency: An open-access portal enabling citizens, civil society, and researchers to track active pilot deployments, disbursed public funds, success rates, and verified digital passports with zero login required.
+
+2. PILOT PASSPORT & SCORING:
+   - What it is: A standardized, tamper-evident digital credential issued upon successful pilot completion that certifies public procurement readiness and qualifies startups for General Financial Rules (GFR) Rule 149 exemption and scale-up procurement across government departments.
+   - Exact Scoring Weights (Total: 100%):
+     • KPI Achievement Delivery: 30%
+     • Milestone & Timeline Adherence: 20%
+     • Statutory & Safety Compliance: 15%
+     • System Reliability & Uptime: 15%
+     • Host Department User Feedback: 10%
+     • Independent Technical Validation: 10%
+   - Performance Tiers:
+     • Platinum (Score 90–100): Exceptional performance; fast-tracked for state-wide deployment.
+     • Gold (Score 80–89): High quality; eligible for immediate multi-department scale-up.
+     • Silver (Score 70–79): Satisfactory outcome; approved for standard deployment.
+     • Needs Review (Score below 70): Requires remediation before scale-up eligibility.
+
+3. AI PILOT MONITORING & RISK BADGES:
+   - What it is: Automated continuous monitoring system tracking milestone deadlines, telemetry metrics, and PFMS budget burn rates in real time.
+   - Risk Badges:
+     • Low Risk: Pilot is on schedule, telemetry within healthy thresholds.
+     • Medium Risk: Minor schedule delay (<14 days) or pending documentation.
+     • High Risk: Critical milestone delay or KPI gap needing active attention.
+     • Critical Risk: Significant contractual or performance breach requiring nodal officer escalation.
+
+4. PUBLIC TRANSPARENCY PORTAL:
+   - Displays aggregated state-wide statistics: total pilots conducted, budget allocated and disbursed, pilot success rates, departmental breakdowns, and a verifiable public registry of digital Pilot Passports with cryptographic SHA-256 seals.
+
+CRITICAL INSTRUCTIONS & FORMATTING RULES:
+- If the user asks about anything unrelated to the NEXORA platform (e.g. general knowledge, coding help, math, trivia, personal questions, recipes, weather, politics), you MUST politely refuse and reply ONLY with:
+  "I can only help with questions about how NEXORA works — try asking about roles, passports, or pilots."
+- Keep your answers short, concise, and focused (between 2 to 4 sentences maximum).
+- Use plain, friendly, conversational language.
+- DO NOT use markdown headers (strictly do not use #, ##, or ###).
+- This is a quick-help widget, not a full report generator.`;
+
+function getHelpAssistantFallback(userQuery: string): string {
+  const query = userQuery.toLowerCase().trim();
+
+  // Explicit off-topic check
+  const hasPlatformTerms = /nexora|pilot|passport|role|startup|department|validator|admin|transparency|kpi|scoring|milestone|sandbox|procurement|msins|gfr|pfms|risk|badge|telemetry/i.test(query);
+  const unrelatedKeywords = [
+    'weather', 'code', 'python', 'javascript', 'react', 'java', 'c++', 'html', 'css', 'recipe', 'cook',
+    'joke', 'poem', 'who is', 'president', 'prime minister', 'capital of', 'math', 'calculate', 'movie', 'song',
+    'write a story', 'translate', 'dating', 'stock', 'bitcoin', 'crypto', 'game', 'sports', 'cricket', 'football'
+  ];
+
+  if (!hasPlatformTerms && unrelatedKeywords.some(w => query.includes(w))) {
+    return "I can only help with questions about how NEXORA works — try asking about roles, passports, or pilots.";
+  }
+
+  if (/role|user|who can use|actor|stakeholder/i.test(query)) {
+    return "NEXORA features 5 user roles: Government Departments (post problem statements and fund pilots), Startup Innovators (deploy solutions and submit milestones), Independent Validators (3rd-party auditors like CSIR/QCI), Admin/MSInS (state innovation directorate), and Public Transparency (an open view for citizens to monitor progress).";
+  }
+
+  if (/passport|score|scoring|weight|formula|percentage|platinum|gold|silver/i.test(query)) {
+    return "A Pilot Passport is a verified credential proving public procurement readiness under GFR Rule 149. It is scored out of 100 based on KPI Delivery (30%), Milestones (20%), Compliance (15%), Reliability (15%), Department Feedback (10%), and Expert Validation (10%), categorized into Platinum (90+), Gold (80-89), and Silver (70-79).";
+  }
+
+  if (/risk|badge|monitoring|telemetry|alert|ai pilot/i.test(query)) {
+    return "AI Pilot Monitoring continuously analyzes milestone deadlines, telemetry data, and budget burn rate. Pilots are tagged with risk badges ranging from Low Risk (on track) and Medium Risk (minor delay) to High and Critical Risk, alerting nodal officers when contractual intervention is needed.";
+  }
+
+  if (/transparency|portal|public|citizen|open access/i.test(query)) {
+    return "The Public Transparency Portal is an unauthenticated open dashboard showing aggregate pilot statistics, total state funds disbursed via PFMS, success ratios, and verified digital Pilot Passports with SHA-256 seals for full public accountability.";
+  }
+
+  if (/what is nexora|how does (this|it) work|about nexora|overview|platform/i.test(query)) {
+    return "NEXORA is Maharashtra's GovTech Innovation Procurement Sandbox that connects government departments with DPIIT startups for fast-track 6-month pilots. Once validated by third-party experts, successful startups receive a digital Pilot Passport for direct state-wide scale-up without repeat tenders.";
+  }
+
+  if (!hasPlatformTerms) {
+    return "I can only help with questions about how NEXORA works — try asking about roles, passports, or pilots.";
+  }
+
+  return "NEXORA facilitates fast-track government pilots for DPIIT startups with 5 distinct user roles, automated AI risk monitoring, and verified Pilot Passports for direct procurement. Try asking about specific roles, passport scoring weights, or the Public Transparency Portal!";
+}
+
+app.post(['/api/help-assistant/chat', '/api/chat/assistant'], async (req: Request, res: Response) => {
+  try {
+    const { message, history } = req.body;
+    if (!message || typeof message !== 'string' || !message.trim()) {
+      return res.status(400).json({ error: 'Message text is required' });
+    }
+
+    const trimmedMsg = message.trim();
+    const ai = getAI();
+
+    if (ai) {
+      try {
+        const contents: any[] = [];
+        if (Array.isArray(history) && history.length > 0) {
+          for (const item of history.slice(-6)) {
+            const role = (item.role === 'assistant' || item.role === 'model') ? 'model' : 'user';
+            const text = item.text || item.content || '';
+            if (text) {
+              contents.push({ role, parts: [{ text }] });
+            }
+          }
+        }
+        contents.push({ role: 'user', parts: [{ text: trimmedMsg }] });
+
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Gemini request timed out')), 7000)
+        );
+
+        const response = await Promise.race([
+          ai.models.generateContent({
+            model: 'gemini-3.8-flash',
+            contents,
+            config: {
+              systemInstruction: NEXORA_GUIDE_SYSTEM_INSTRUCTION,
+              temperature: 0.2,
+            },
+          }),
+          timeoutPromise,
+        ]);
+
+        const reply = response.text?.trim();
+        if (reply) {
+          return res.json({ reply, source: 'gemini' });
+        }
+      } catch (geminiErr) {
+        console.warn('Gemini help assistant error, using fallback:', geminiErr);
+      }
+    }
+
+    const fallbackReply = getHelpAssistantFallback(trimmedMsg);
+    return res.json({ reply: fallbackReply, source: 'fallback' });
+  } catch (err: any) {
+    console.error('Help assistant endpoint exception:', err);
+    res.json({
+      reply: "I can only help with questions about how NEXORA works — try asking about roles, passports, or pilots.",
+      source: 'error-fallback',
+    });
   }
 });
 

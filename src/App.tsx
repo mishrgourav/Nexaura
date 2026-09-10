@@ -34,6 +34,7 @@ import { AlertCircle, CheckCircle2, Info, Loader2 } from 'lucide-react';
 import { useAuth } from './context/AuthContext';
 import { AuthModal } from './components/AuthModal';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
+import { HelpAssistantWidget } from './components/HelpAssistantWidget';
 
 export function App() {
   const {
@@ -983,6 +984,9 @@ export function App() {
           fetchAllData();
         }}
       />
+
+      {/* Floating Help Assistant Widget - visible across all views including Public Transparency Portal */}
+      <HelpAssistantWidget />
       </div>
     </div>
   );

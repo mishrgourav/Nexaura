@@ -14,6 +14,7 @@ import {
   Globe,
   Users,
 } from 'lucide-react';
+import { apiUrl } from '../lib/api';
 
 interface ChatMessage {
   id: string;
@@ -80,7 +81,7 @@ export const HelpAssistantWidget: React.FC = () => {
         text: m.text,
       }));
 
-      const res = await fetch('/api/help-assistant/chat', {
+      const res = await fetch(apiUrl('/api/help-assistant/chat'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

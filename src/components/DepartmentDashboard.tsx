@@ -27,6 +27,7 @@ import {
   FileQuestion,
   Landmark,
 } from 'lucide-react';
+import { apiUrl } from '../lib/api';
 
 interface DepartmentDashboardProps {
   currentUser: User;
@@ -82,7 +83,7 @@ export const DepartmentDashboard: React.FC<DepartmentDashboardProps> = ({
       return;
     }
     setLoadingMatches(true);
-    fetch(`/api/matches/${selectedProblemId}`)
+    fetch(apiUrl(`/api/matches/${selectedProblemId}`))
       .then((res) => res.json())
       .then((data) => {
         setAiMatches(data);
@@ -106,7 +107,7 @@ export const DepartmentDashboard: React.FC<DepartmentDashboardProps> = ({
     setLoadingAiBrief(true);
     setAiBrief(null);
     try {
-      const res = await fetch('/api/ai-match/explain', {
+      const res = await fetch(apiUrl('/api/ai-match/explain'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ problemId, startupId }),
@@ -133,7 +134,7 @@ export const DepartmentDashboard: React.FC<DepartmentDashboardProps> = ({
   const handleInitiatePilotWithMatchRecord = async (prob: ProblemStatement, startup: Startup) => {
     console.log('[DepartmentDashboard] Proposing pilot & creating match row in database for:', prob.id, startup.id);
     try {
-      await fetch('/api/matches', {
+      await fetch(apiUrl('/api/matches'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

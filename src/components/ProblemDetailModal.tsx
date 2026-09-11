@@ -17,6 +17,7 @@ import {
   FileText,
   Activity,
 } from 'lucide-react';
+import { apiUrl } from '../lib/api';
 
 interface ProblemDetailModalProps {
   isOpen: boolean;
@@ -218,7 +219,7 @@ export const ProblemDetailModal: React.FC<ProblemDetailModalProps> = ({
 
     // Step 2: Fetch matches from server
     setLoadingMatches(true);
-    fetch(`/api/matches/${problem.id}`)
+    fetch(apiUrl(`/api/matches/${problem.id}`))
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP error ${res.status}`);
         return res.json();
@@ -253,7 +254,7 @@ export const ProblemDetailModal: React.FC<ProblemDetailModalProps> = ({
 
     try {
       // Call backend to insert/upsert match row in matches table
-      const res = await fetch('/api/matches', {
+      const res = await fetch(apiUrl('/api/matches'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { User, UserRole } from '../types';
 import { getSupabaseClient } from '../lib/supabaseClient';
+import { apiUrl } from '../lib/api';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
 
 export interface SignupData {
@@ -67,7 +68,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       if (token) headers['Authorization'] = `Bearer ${token}`;
 
-      const res = await fetch('/api/auth/sync-user', {
+      const res = await fetch(apiUrl('/api/auth/sync-user'), {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -545,7 +546,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       headers.set('x-user-role', 'public');
     }
 
-    return fetch(url, {
+    return fetch(apiUrl(url), {
       ...options,
       headers,
     });

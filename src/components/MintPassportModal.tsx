@@ -5,6 +5,7 @@ import {
   PassportScoreBreakdown,
 } from '../utils/passportScore';
 import { getSupabaseClient } from '../lib/supabaseClient';
+import { apiUrl } from '../lib/api';
 import confetti from 'canvas-confetti';
 import { useCountUp } from '../utils/useCountUp';
 import {
@@ -234,7 +235,7 @@ export const MintPassportModal: React.FC<MintPassportModalProps> = ({
       // Sync with Express backend endpoint to update in-memory state and ensure consistency
       const fetchFn = authenticatedFetch || fetch;
       try {
-        await fetchFn('/api/passports/generate', {
+        await fetchFn(apiUrl('/api/passports/generate'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

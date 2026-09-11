@@ -1,4 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { apiUrl } from './api';
 
 // Cache client instance
 let supabaseClientInstance: SupabaseClient | null = null;
@@ -45,7 +46,7 @@ export async function getSupabaseClient(): Promise<SupabaseClient | null> {
 
   // 2. Fetch server-provided config from /api/auth/config
   try {
-    const res = await fetch('/api/auth/config');
+    const res = await fetch(apiUrl('/api/auth/config'));
     if (res.ok) {
       const config = await res.json();
       const serverUrl = normalizeSupabaseUrl(config.supabaseUrl);

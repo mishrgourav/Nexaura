@@ -35,6 +35,7 @@ import { useAuth } from './context/AuthContext';
 import { AuthModal } from './components/AuthModal';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
 import { HelpAssistantWidget } from './components/HelpAssistantWidget';
+import { apiUrl } from './lib/api';
 
 export function App() {
   const {
@@ -120,7 +121,7 @@ export function App() {
   // Safe JSON fetching helper
   const safeFetchJson = async (url: string, fallback: any = []) => {
     try {
-      const res = await fetch(url);
+      const res = await fetch(apiUrl(url));
       if (!res.ok) return fallback;
       const contentType = res.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
@@ -523,7 +524,7 @@ export function App() {
     if (!passport) {
       try {
         const queryId = matchedPilot?.id || cleanId;
-        const res = await fetch(`/api/passports/${queryId}`);
+        const res = await fetch(apiUrl(`/api/passports/${queryId}`));
         if (res.ok) {
           const fetched = await res.json();
           if (fetched && (fetched.id || fetched.pilotId)) {
@@ -648,7 +649,7 @@ export function App() {
   const handleResetDatabase = async () => {
     setResettingDb(true);
     try {
-      const res = await fetch('/api/reset', { method: 'POST' });
+      const res = await fetch(apiUrl('/api/reset'), { method: 'POST' });
       if (!res.ok) throw new Error('Reset failed');
       await fetchAllData();
       showToast('Sandbox database successfully reset to clean demo seed state!', 'success');

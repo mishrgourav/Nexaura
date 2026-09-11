@@ -18,7 +18,7 @@ import { calculatePilotPassportMetrics } from './src/utils/passportScore';
 
 const app = express();
 app.use(cors({
-  origin: ['https://nexaura-pi.vercel.app', 'https://nexaura-startupconnect.ai.studio'],
+  origin: true,
   credentials: true
 }));
 const PORT = 3000;

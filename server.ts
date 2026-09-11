@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import cors from 'cors';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import { db, supabase, supabaseConfig, supabaseUrl } from './server/db';
@@ -16,6 +17,10 @@ import {
 import { calculatePilotPassportMetrics } from './src/utils/passportScore';
 
 const app = express();
+app.use(cors({
+  origin: ['https://nexaura-pi.vercel.app', 'https://nexaura-startupconnect.ai.studio'],
+  credentials: true
+}));
 const PORT = 3000;
 
 app.use(express.json());

@@ -1,4 +1,4 @@
-NEXAURA — Next Minds. Bold Innovation
+<img width="2170" height="725" alt="ChatGPT Image Sep 7, 2026, 03_13_49 PM" src="https://github.com/user-attachments/assets/8dc27c46-e2d1-4773-a6cc-8544029aaea1" />NEXAURA — Next Minds. Bold Innovation
 
 Startup-Friendly Public Procurement Platform 
 
@@ -170,6 +170,13 @@ Transparent milestone tracking
 Independent KPI validation
 Greater public accountability
 A framework that can be extended across departments and states
+
+<img width="3840" height="2402" alt="NEXAURA_dashboard_4K (1)" src="https://github.com/user-attachments/assets/6382be8d-638c-470f-9026-e231462bf21c" />
+<img width="1875" height="839" alt="ChatGPT Image Sep 7, 2026, 04_17_40 PM" src="https://github.com/user-attachments/assets/756aaf12-aeec-4ef7-aa30-f599b907b9e2" />
+<img width="547" height="698" alt="Screenshot 2026-09-07 194650" src="https://github.com/user-attachments/assets/b6d58c23-8d03-4b79-b2ff-198ab9a97eff" />
+<img width="1523" height="814" alt="Screenshot 2026-09-07 193630" src="https://github.com/user-attachments/assets/5b98e3a5-5fd7-4231-b8d7-4b95bca5b921" />
+<img width="870" height="581" alt="Screenshot 2026-09-07 194620" src="https://github.com/user-attachments/assets/d4203169-da4a-406d-8b2d-a6ec7ad8eb30" />
+
 
 🗂️ Project Structure
 
